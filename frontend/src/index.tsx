@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
-
 import {
   BrowserRouter as Router,
   Routes,
@@ -57,7 +56,7 @@ function Routing() {
       </div>
 
       <Routes>
-        
+
       </Routes>
     </>
   );
