@@ -1,21 +1,21 @@
 const mongoose = require("mongoose");
+const test = "hallo";
 
-const connect = async () => {
-    const mongoURI = process.env.mongoURI;
+async function connect() {
+  const mongoURI = process.env.MONGO_URI;
 
-    if (!mongoURI) {
-        throw new Error("Mongo uri isn't defined in the env");
-    } 
+  if (!mongoURI) {
+    throw new Error("Mongo uri isn't defined in the env");
+  }
 
-    try {
-        const connection = mongoURI.connect(mongoURI);
+  try {
+    const connection = await mongoose.connect(mongoURI);
 
-        console.log("Database connection succsessful")
-    } catch (error) {
-        console.log(`Error ${error}  happenned during connection attempt`)
-        process.exit(1);
-    }
-
+    console.log("Database connection succsessful");
+  } catch (error) {
+    console.log(`Error ${error}  happenned during connection attempt`);
+    process.exit(1);
+  }
 };
 
-export default connect;
+module.exports = connect;

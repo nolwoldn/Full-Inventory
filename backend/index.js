@@ -2,12 +2,13 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 
+
 const app = express();
 const PORT = process.env.PORT || 5000;
+const connectToServer = require("./database/connectToServer.js");
 
-const connectToServer = require("./database/connectToServer");
 
-connectToServer();
+console.log(connectToServer())
 
 const corsOptions = {
   origin: "http://localhost:5713",

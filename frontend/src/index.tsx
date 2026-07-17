@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BrowserRouter as Router,
@@ -6,7 +6,9 @@ import {
   Route,
   Link,
   NavLink,
+  useLocation,
 } from "react-router-dom";
+import Signup from "./mainFiles/signUp";
 
 interface linkStruct {
   name: string;
@@ -14,12 +16,15 @@ interface linkStruct {
 }
 
 function Routing() {
+  const crrLocation = useLocation();
   const [crrLinkIdx, changeCrrLinkIdx] = useState<number>(-1);
+
+  let showSideBar: boolean = false;
 
   const sideBarLink: linkStruct[] = [
     {
       name: "Dashboard",
-      link: "/",
+      link: "/dashboard",
     },
     {
       name: "Inventory",
@@ -35,28 +40,39 @@ function Routing() {
     },
   ];
 
+  for (let link of sideBarLink) {
+    if (!(link.link === crrLocation.pathname)) {
+      continue;
+    }
+
+    showSideBar = true;
+    break;
+  }
+
   return (
     <>
-      <div className="side-bar">
-        {sideBarLink.map((item, idx: number) => (
-          <NavLink
-            key={idx}
-            to={item.link}
-            className={({ isActive }) => {
-              isActive || crrLinkIdx === idx
-                ? "interacted-with sidebar-link"
-                : "sidebar-link";
-            }}
-            onMouseEnter={()=> changeCrrLinkIdx(idx)}
-            onMouseLeave={()=> changeCrrLinkIdx(-1)}
-          >
-            {item.name}
-          </NavLink>
-        ))}
-      </div>
+      {showSideBar && (
+        <div className="side-bar">
+          {sideBarLink.map((item, idx: number) => (
+            <NavLink
+              key={idx}
+              to={item.link}
+              className={({ isActive }) => {
+                isActive || crrLinkIdx === idx
+                  ? "interacted-with sidebar-link"
+                  : "sidebar-link";
+              }}
+              onMouseEnter={() => changeCrrLinkIdx(idx)}
+              onMouseLeave={() => changeCrrLinkIdx(-1)}
+            >
+              {item.name}
+            </NavLink>
+          ))}
+        </div>
+      )}
 
       <Routes>
-
+        <Route path="/signup" element={<Signup />} />
       </Routes>
     </>
   );
