@@ -40,14 +40,7 @@ function Routing() {
     },
   ];
 
-  for (let link of sideBarLink) {
-    if (!(link.link === crrLocation.pathname)) {
-      continue;
-    }
-
-    showSideBar = true;
-    break;
-  }
+  showSideBar = sideBarLink.some((link) => link.link === crrLocation.pathname)
 
   return (
     <>
