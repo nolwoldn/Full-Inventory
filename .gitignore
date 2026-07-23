@@ -3,6 +3,6 @@ package-lock.json
 package.json
 googleClient.json
 *.bat
-.env
+*.env
 .postman/
 postman/
