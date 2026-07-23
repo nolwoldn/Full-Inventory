@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import "../css/signUp.css";
 
 interface passwordObject {
   password: string;
@@ -10,9 +13,9 @@ interface validatingObject {
   message: string;
 }
 
-interface resendTimerObject {
-  minuets: number;
-  seconds: number;
+interface userErrorObject {
+  fail: boolean;
+  cause: string;
 }
 
 const passWordValidationReg: validatingObject[] = [
@@ -58,13 +61,14 @@ function Signup() {
   const [otpVals, changeOtp] = useState<string[]>(new Array(6).fill(""));
   const verifyInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showVerifyEmail, setVerifyEmail] = useState<boolean>(false);
-  const [userEmailError, setUserEmailError] = useState<string>("");
-  const [emailOTPPassed, setEmailOTPPassed] = useState<boolean>(false);
-  const [resendTimer, setResendTimer] = useState<resendTimerObject>({
-    minuets: 0,
-    seconds: 0,
+  const [userError, setUserError] = useState<userErrorObject>({
+    fail: false,
+    cause: "",
   });
+  const [emailOTPPassed, setEmailOTPPassed] = useState<boolean | null>(null);
+  const [resendTimer, setResendTimer] = useState<number>(0);
   const [resendOTP, changeResendOTP] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   //functions
   const checkPasswords = (confirmPass: string): boolean => {
@@ -94,7 +98,7 @@ function Signup() {
     newOtp[index] = newVal;
     changeOtp(newOtp);
 
-    if (index < 9 && newVal !== "") {
+    if (index < otpVals.length && newVal !== "") {
       verifyInputRefs.current[index + 1]?.focus();
     }
   };
@@ -125,36 +129,24 @@ function Signup() {
     verifyInputRefs.current[focusIndex]?.focus();
   };
 
-  function handleTiming() {
-    let seconds: number = resendTimer.seconds;
-    let minuets: number = resendTimer.minuets;
-    let total: number = minuets * 60 + seconds;
-    total -= 1;
-
-    let minuetString = (total / 60).toString();
-    minuets = parseInt(minuetString);
-    seconds = Math.floor((parseFloat(minuetString) - minuets) * 60);
-    setResendTimer({ minuets, seconds });
-    console.log(`${resendTimer.minuets} : ${resendTimer.seconds}`);
-  }
-
   const startResendTimer = () => {
-    if (!showVerifyEmail || resendTimer.minuets * 60 + resendTimer.seconds > 0)
-      return;
+    if (!showVerifyEmail || resendTimer > 0) return;
 
-    setResendTimer({ minuets: 5, seconds: 0 });
+    setResendTimer(60);
     changeResendOTP(false);
-    setInterval(() => {
-      handleTiming();
+    let interval = setInterval(() => {
+      setResendTimer((prev) => prev - 1);
     }, 1000);
 
-    if (resendTimer.minuets * 60 + resendTimer.seconds === 0) {
+    if (resendTimer === 0) {
       changeResendOTP(true);
     }
+    return interval;
   };
   useEffect(() => {
-    startResendTimer();
-  }, [showVerifyEmail]);
+    let interv = startResendTimer();
+    return () => clearInterval(interv);
+  }, [showVerifyEmail === true]);
 
   let resendOnClick = (e: React.MouseEvent) => {
     if (resendOTP) {
@@ -162,6 +154,18 @@ function Signup() {
       startResendTimer();
     } else {
     }
+  };
+
+  let startUserErrorTimer = () => {
+    let timer = setTimeout(() => {
+      setUserError({ fail: false, cause: "" });
+    }, 5000);
+    return () => clearTimeout(timer);
+  };
+
+  const handleSuccsessfullSignup = () => {
+    const navigate = useNavigate();
+    navigate("/login");
   };
 
   //backend functions
@@ -174,7 +178,8 @@ function Signup() {
     let confirmPassword = userConfirmPass.password;
 
     if (!email || !password || password !== confirmPassword) {
-      setUserEmailError("Inputs not filled in correctly");
+      setUserError({ fail: true, cause: "inputs filled in incorrectly" });
+      startUserErrorTimer();
       return;
     }
 
@@ -190,7 +195,8 @@ function Signup() {
       const data = await response.json();
 
       if (!response.ok) {
-        setUserEmailError(data.cause);
+        setUserError({ fail: true, cause: data.cause });
+        startUserErrorTimer();
         return;
       }
       setVerifyEmail(true);
@@ -201,7 +207,33 @@ function Signup() {
     }
   };
 
-  let verifyEmailRequest = async (e: React.MouseEvent) => {
+  let googleSuccsess = async (credentialResponse: CredentialResponse) => {
+    try {
+      const response = await fetch("http://localhost:5000/api/signup/google", {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "POST",
+        body: JSON.stringify({ token: credentialResponse.credential }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setUserError({ fail: true, cause: data.cause });
+        startUserErrorTimer();
+      }
+    } catch (e) {
+      throw new Error(`Error ${e} from google fetch`);
+    }
+  };
+  let googleFail = () => {
+    setUserError({ fail: true, cause: "A google sign up error occured" });
+    startUserErrorTimer();
+    console.log("A google error");
+  };
+
+  let verifyEmailRequest = async () => {
     const combinedString: string = otpVals.join("");
     const email: string | undefined = userEmail.current?.value;
     const password: string = userPassword.password;
@@ -211,8 +243,9 @@ function Signup() {
       otp: combinedString,
     };
 
-    if (combinedString.length !== 6) {
-      setUserEmailError("OTP input not fufilled");
+    if (combinedString.length !== otpVals.length) {
+      setUserError({ fail: true, cause: "otp inputs not filled in" });
+      startUserErrorTimer();
     }
     try {
       let response = await fetch("http://localhost:5000/api/verify/code", {
@@ -224,26 +257,35 @@ function Signup() {
       });
 
       let data = await response.json();
-      console.log(data);
+      setEmailOTPPassed(data.succsess);
+      if (data.succsess) {
+        handleSuccsessfullSignup();
+      }
     } catch (e) {
       console.log(`Error ${e} occured while trying to verify otp`);
     }
   };
 
   return (
-    <>
+    <div className="signup-full">
       <div className="signup-form-part">
-        <div className="signup-content"></div>
+        <div className="signup-content">;</div>
         <div className="signup-form">
           <form className="sign-main-form">
+            <h1 className="sign-form-heading">Get started</h1>
             <label className="signup-labels" htmlFor="userEmail">
-              Your Email
+              Email address
             </label>
             <input
               type="email"
               id="userEmail"
-              className="signup-form-inputs"
+              className={
+                userError.fail
+                  ? "signup-form-inputs border-red"
+                  : "signup-form-inputs"
+              }
               ref={userEmail}
+              placeholder="Enter your email"
               required
             />
 
@@ -251,7 +293,7 @@ function Signup() {
               Password
             </label>
             <input
-              type="password"
+              type={showPassword ? "type" : "password"}
               id="userPassword"
               onChange={(e) => {
                 changeUserPassword({
@@ -274,7 +316,12 @@ function Signup() {
                   passwordSelected: true,
                 });
               }}
-              className="signup-form-inputs"
+              className={
+                userError.fail
+                  ? "signup-form-inputs border-red"
+                  : "signup-form-inputs"
+              }
+              placeholder="Your password"
               required
             />
             {!userPassword.passwordValid && userPassword.passwordSelected && (
@@ -290,8 +337,17 @@ function Signup() {
               Confirm password
             </label>
             <input
-              type="password"
-              className="signup-form-inputs"
+              type={showPassword ? "text" : "password"}
+              className={
+                !userConfirmPass.passwordValid &&
+                userConfirmPass.passwordSelected
+                  ? "signup-form-inputs confirm-password-error"
+                  : "signup-form-inputs"
+              }
+              style={{
+                borderColor: userError.fail ? "red" : "black",
+                borderWidth: userError.fail ? "2px" : "1px",
+              }}
               onChange={(e) => {
                 changeUserConfrimPassword({
                   password: e.target.value,
@@ -307,6 +363,7 @@ function Signup() {
                 });
               }}
               required
+              placeholder="Confirm your password"
             />
             {!userConfirmPass.passwordValid &&
               userConfirmPass.passwordSelected && (
@@ -316,18 +373,48 @@ function Signup() {
               )}
 
             <button onClick={(e) => SignupRequest(e)} className="submit-signup">
-              Sign
+              Create account
             </button>
           </form>
+          <div className="signup-bottom">
+            <div className="signup-bottom-left">
+              <label
+                htmlFor="show-password-signup"
+                className="show-password-label"
+              >
+                Show Password
+              </label>
+              <input
+                type="checkbox"
+                id="show-password-signup"
+                className="show-passwords-signup"
+                onChange={(e) => setShowPassword(e.target.checked)}
+              />
+            </div>
+            <NavLink className="signup-links" to={"/login"}>
+              Have an account?
+            </NavLink>
+          </div>
+          <div
+            style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          >
+            <GoogleLogin
+              onSuccess={googleSuccsess}
+              onError={googleFail}
+              text="signup_with"
+              shape="rectangular"
+              width="350px"
+              size="large"
+            />
+          </div>
         </div>
       </div>
 
       {showVerifyEmail && (
         <div className="verify-email">
           <p className="verification-heading">
-            We have sent a 5 digit code to {userEmail.current?.value} please
-            fill out the form <br />
-            and tap verify to show us this is your account
+            We have sent a 6 digit code to {userEmail.current?.value} please
+            veirfy your account
           </p>
           <div className="verify-inputs-wrapper">
             {otpVals.map((val: string, idx: number) => (
@@ -335,7 +422,21 @@ function Signup() {
                 key={idx}
                 type="text"
                 maxLength={2}
-                className="verify-input"
+                className={
+                  userError.fail ? "verify-input border-red" : "verify-input"
+                }
+                style={{
+                  borderColor: (() => {
+                    switch (emailOTPPassed) {
+                      case true:
+                        return "rgb(0 255 0)";
+                      case null:
+                        return "black";
+                      case false:
+                        return "red";
+                    }
+                  })(),
+                }}
                 value={val}
                 ref={(el) => {
                   verifyInputRefs.current[idx] = el;
@@ -346,21 +447,28 @@ function Signup() {
               />
             ))}
           </div>
-          <div className="opt-card-bottom">
-            <button className="verify-email" onClick={verifyEmailRequest}>
+          <div className="otp-card-bottom">
+            <button
+              className="verify-email-button"
+              onClick={verifyEmailRequest}
+            >
               Verify Email
             </button>
-            <button className="resend-opt" onClick={resendOnClick}>
-              Resend {resendTimer.minuets} : {resendTimer.seconds}
+            <button className="resend-otp" onClick={resendOnClick}>
+              Resend {parseInt((resendTimer / 60).toString())} :{" "}
+              {Math.floor(
+                (resendTimer / 60 - parseInt((resendTimer / 60).toString())) *
+                  60,
+              )}
             </button>
           </div>
         </div>
       )}
 
-      {userEmailError && (
-        <div className="user-email-errors">{userEmailError}</div>
+      {userError.fail && (
+        <div className="user-email-errors">{userError.cause}</div>
       )}
-    </>
+    </div>
   );
 }
 

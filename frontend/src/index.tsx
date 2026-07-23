@@ -8,7 +8,10 @@ import {
   NavLink,
   useLocation,
 } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import googleClientItems from "../../googleClient.json";
 import Signup from "./mainFiles/signUp";
+import Login from "./mainFiles/login";
 
 interface linkStruct {
   name: string;
@@ -40,7 +43,7 @@ function Routing() {
     },
   ];
 
-  showSideBar = sideBarLink.some((link) => link.link === crrLocation.pathname)
+  showSideBar = sideBarLink.some((link) => link.link === crrLocation.pathname);
 
   return (
     <>
@@ -66,6 +69,7 @@ function Routing() {
 
       <Routes>
         <Route path="/signup" element={<Signup />} />
+        <Route path="/login" element={<Login />} />
       </Routes>
     </>
   );
@@ -73,9 +77,13 @@ function Routing() {
 
 function Index() {
   return (
-    <Router>
-      <Routing />
-    </Router>
+    <GoogleOAuthProvider
+      clientId={googleClientItems.web.client_id}
+    >
+      <Router>
+        <Routing />
+      </Router>
+    </GoogleOAuthProvider>
   );
 }
 

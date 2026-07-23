@@ -12,7 +12,7 @@
       "userCurrency": "£"
     },
     "user3": {
-      "objectsID": [],
+      "objectsID": ["1"],
       "userEmail": "fakeEmail@gmail.com", //necessary
       "userCurrency": "ብር" //necessary
     }
@@ -21,6 +21,7 @@
   "objectsPOOL": {
     "1": {
       "objectName": "chainsaw",
+      "objectOwners": ["user1", "user3"],
       "objectDescription": "", //optional
       "objectPrice": 127, //not user editable !
       "objectBuyingPrice": 100, //not user editable !
@@ -31,6 +32,7 @@
     },
     "2": {
       "objectName": "chainsaw", // i want to allow multiple objects of the same name
+      "objectOwners": ["user2"],
       "objectDescription": "its used for cutting wood or anything else",
       "objectPrice": 12,
       "objectBuyingPrice": 98,
@@ -45,6 +47,7 @@
     },
     "3": {
       "objectName": "cat furniture",
+      "objectOwners": ["user2"],
       "objectDescription": "it is a nice place for cats to enjoy",
       "objectPrice": 12,
       "objectBuyingPrice": 100,
