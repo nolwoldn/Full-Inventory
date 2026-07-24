@@ -144,15 +144,16 @@ body {
 }
 .user-email-errors {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  padding: 20px;
-  color: white;
-  background-color:  red;
+  bottom: 5px;
+  right: 2px;
+  padding: 5px;
+  padding-left: 8px;
+  color: rgb(38, 1, 1);
+  background-color:  rgb(250, 246, 246);
   font-size: 22px;
   font-weight: 300;
-  
-  border-top-left-radius: 12px;
+  border : 1px solid black;
+  border-radius: 5px;
 }
 .otp-card-bottom {
     display: flex;

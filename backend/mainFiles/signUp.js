@@ -1,6 +1,7 @@
 require("dotenv").config();
 const nodeMailer = require("nodemailer");
 const models = require("../models");
+const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 const letters = "abcdefghijklmnopqrstuvwxyz";
@@ -114,7 +115,10 @@ const verifyOTP = async (req, res) => {
 
   const foundOTP = await models.OTP.findOne({ otp: otp });
   const deleteingOTP = await models.OTP.findOneAndDelete({ _id: foundOTP._id });
-
+  const hashedPassword = crypto
+    .createHash("sha256")
+    .update(password)
+    .digest("hex");
   const user = await models.User.create({
     email: email,
     password: password,
@@ -131,7 +135,7 @@ const testPost = async (req, res) => {
     console.log(er);
   }
 
-  res.status(200).json();
+  res.status(200).json({ succsess: true });
 };
 
 async function googleSignup(req, res) {
@@ -148,22 +152,24 @@ async function googleSignup(req, res) {
     });
     const payload = ticket.getPayload();
     const { sub: googleId, email } = payload;
-    const generatedPassword = txtRandom(12);
-
     const exisistingUser = await models.User.findOne({ email });
     if (exisistingUser) {
       return res.status(400).json({ cause: "Email already exists" });
     }
-
+    const generatedPassword = txtRandom(12);
+    const hashedPassword = crypto
+      .createHash("sha256")
+      .update(generatedPassword)
+      .digest("hex");
     const user = await models.User.create({
-      email : email,
-      password: generatedPassword,
+      email: email,
+      password: hashedPassword,
     });
   } catch (e) {
     return res.status(400).json({ cause: `Error ${e} happened` });
   }
 
-  return res.status(201).json();
+  return res.status(201).json({ succsess: true });
 }
 
-module.exports = { verifyEmail, verifyOTP ,googleSignup };
+module.exports = { verifyEmail, verifyOTP, googleSignup };

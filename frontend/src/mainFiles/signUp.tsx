@@ -69,8 +69,13 @@ function Signup() {
   const [resendTimer, setResendTimer] = useState<number>(0);
   const [resendOTP, changeResendOTP] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   //functions
+  const handleSuccsessfullSignup = () => {
+    navigate("/login");
+  };
+
   const checkPasswords = (confirmPass: string): boolean => {
     const isMatch = confirmPass === userPassword.password;
     return isMatch;
@@ -130,7 +135,7 @@ function Signup() {
   };
 
   const startResendTimer = () => {
-    if (!showVerifyEmail || resendTimer > 0) return;
+    if (!showVerifyEmail || resendTimer > 0 || resendOTP) return;
 
     setResendTimer(60);
     changeResendOTP(false);
@@ -163,11 +168,6 @@ function Signup() {
     return () => clearTimeout(timer);
   };
 
-  const handleSuccsessfullSignup = () => {
-    const navigate = useNavigate();
-    navigate("/login");
-  };
-
   //backend functions
 
   let SignupRequest = async (e: React.MouseEvent) => {
@@ -179,6 +179,11 @@ function Signup() {
 
     if (!email || !password || password !== confirmPassword) {
       setUserError({ fail: true, cause: "inputs filled in incorrectly" });
+      startUserErrorTimer();
+      return;
+    }
+    if (resendTimer) {
+      setUserError({ fail: true, cause: "You have already sent request" });
       startUserErrorTimer();
       return;
     }
@@ -209,7 +214,7 @@ function Signup() {
 
   let googleSuccsess = async (credentialResponse: CredentialResponse) => {
     try {
-      const response = await fetch("http://localhost:5000/api/signup/google", {
+      let response = await fetch("http://localhost:5000/api/signup/google", {
         headers: {
           "Content-Type": "application/json",
         },
@@ -222,6 +227,8 @@ function Signup() {
       if (!response.ok) {
         setUserError({ fail: true, cause: data.cause });
         startUserErrorTimer();
+      } else {
+        handleSuccsessfullSignup();
       }
     } catch (e) {
       throw new Error(`Error ${e} from google fetch`);
@@ -403,7 +410,7 @@ function Signup() {
               onError={googleFail}
               text="signup_with"
               shape="rectangular"
-              width="350px"
+              width="100px"
               size="large"
             />
           </div>

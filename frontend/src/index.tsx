@@ -18,6 +18,21 @@ interface linkStruct {
   link: string;
 }
 
+async function csrfToken() {
+  try {
+    let response = await fetch("http://localhost:5000/api/csrf-token", {
+      method: "GET",
+    });
+    if (!response.ok) {
+      throw new Error("CSRF_TOKEN Failure");
+    }
+    let data = await response.json();
+    console.log(data.succsess);
+  } catch (e) {
+    throw new Error(`Error ${e} while getting the csrf_token`);
+  }
+}
+
 function Routing() {
   const crrLocation = useLocation();
   const [crrLinkIdx, changeCrrLinkIdx] = useState<number>(-1);
@@ -76,10 +91,9 @@ function Routing() {
 }
 
 function Index() {
+  csrfToken();
   return (
-    <GoogleOAuthProvider
-      clientId={googleClientItems.web.client_id}
-    >
+    <GoogleOAuthProvider clientId={googleClientItems.web.client_id}>
       <Router>
         <Routing />
       </Router>
