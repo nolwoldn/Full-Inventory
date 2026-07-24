@@ -22,6 +22,7 @@ async function csrfToken() {
   try {
     let response = await fetch("http://localhost:5000/api/csrf-token", {
       method: "GET",
+      credentials : "include",
     });
     if (!response.ok) {
       throw new Error("CSRF_TOKEN Failure");
@@ -91,7 +92,6 @@ function Routing() {
 }
 
 function Index() {
-  csrfToken();
   return (
     <GoogleOAuthProvider clientId={googleClientItems.web.client_id}>
       <Router>
@@ -102,3 +102,5 @@ function Index() {
 }
 
 createRoot(document.getElementById("root")!).render(<Index />);
+
+export default csrfToken;

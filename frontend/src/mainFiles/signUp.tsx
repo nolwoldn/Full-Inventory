@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import "../css/signUp.css";
-
+import csrfToken from "../index";
 interface passwordObject {
   password: string;
   passwordValid: boolean;
@@ -38,7 +38,10 @@ const passWordValidationReg: validatingObject[] = [
 ];
 
 function Signup() {
+  console.log("asking for csrf_token");
   useEffect(() => {
+    csrfToken();
+
     document.title = "Sign up";
   }, []);
   //variables
@@ -194,6 +197,7 @@ function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({ email: email }),
       });
 
@@ -218,6 +222,8 @@ function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
+
         method: "POST",
         body: JSON.stringify({ token: credentialResponse.credential }),
       });
@@ -260,6 +266,8 @@ function Signup() {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
+
         body: JSON.stringify(finalObject),
       });
 

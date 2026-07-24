@@ -23,6 +23,14 @@ const excludedPaths = ["/api/csrf-token"];
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+app.use(
+  session({
+    secret: "super-secrete-session-key-secrete-bla-bla-bla",
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false, httpOnly: true, sameSite: "lax" },
+  }),
+);
 app.use((req, res, next) => {
   if (excludedPaths.includes(req.path)) {
     return next();
@@ -36,52 +44,19 @@ app.use((req, res, next) => {
   const sessionToken = req.session ? req.session.csrf_token : null;
 
   if (!cookieToken || !sessionToken) {
-    return res.status(403).json({ cause: "csrf_token missing" });
+    return res.status(403).json({
+      cause: `csrf_token missing cookie= ${cookieToken} , session = ${sessionToken}`,
+    });
   }
 
   const buf1 = Buffer.from(cookieToken);
   const buf2 = Buffer.from(sessionToken);
-
-  if (buf1.length === buf2.length && crypto.timingSafeEqual(buf1, buf2)) {
+  const isValid =
+    buf1.length === buf2.length && crypto.timingSafeEqual(buf1, buf2);
+  if (!isValid) {
+    return res.status(403).json({ cause: "inproper csrf_token" });
   }
-});
-app.use(
-  session({
-    secret: "",
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false, httpOnly: true, sameSite: "lax" },
-  }),
-);
-
-app.post("/api/verify/email", (request, response) => {
-  signUpFunctions.verifyEmail(request, response);
-});
-app.post("/api/verify/code", (req, res) => {
-  signUpFunctions.verifyOTP(req, res);
-});
-app.post("/api/signup/google", (req, res) => {
-  signUpFunctions.googleSignup(req, res);
-});
-app.get("/api/csrf-token", (req, res) => {
-  if (req.session && req.session.csrf_token) {
-    return req.session.csrf_token;
-  }
-
-  const newToken = generateCsrfToken();
-  req.session.csrf_token = newToken;
-  res
-    .cookie("csrf_token", newToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-    })
-    .json({ succsess: true });
-
-  return newToken;
-});
-app.listen(PORT, () => {
-  console.log(`server is running on port ${PORT}`);
+  return next();
 });
 
 function generateCsrfToken() {
@@ -95,3 +70,35 @@ function generateCsrfToken() {
   }
   return token;
 }
+
+app.post("/api/verify/email", (request, response) => {
+  signUpFunctions.verifyEmail(request, response);
+});
+app.post("/api/verify/code", (req, res) => {
+  signUpFunctions.verifyOTP(req, res);
+});
+app.post("/api/signup/google", (req, res) => {
+  signUpFunctions.googleSignup(req, res);
+});
+app.get("/api/csrf-token", (req, res) => {
+  if (req.session && req.session.csrf_token) {
+    return res.json({ succsess: true });
+  }
+  console.log("got request for csrf token");
+  const newToken = generateCsrfToken();
+  req.session.csrf_token = newToken;
+
+  res
+    .cookie("csrf_token", newToken, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    })
+    .json({ succsess: true });
+  console.log(`${newToken} this is supposed to be the cookie`)
+  console.log("sent cookie");
+  console.log(`here is cookie `);
+});
+app.listen(PORT, () => {
+  console.log(`server is running on port ${PORT}`);
+});
