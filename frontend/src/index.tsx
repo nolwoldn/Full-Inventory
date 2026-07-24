@@ -9,10 +9,15 @@ import {
   useLocation,
 } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import googleClientItems from "../../googleClient.json";
+
 import Signup from "./mainFiles/signUp";
 import Login from "./mainFiles/login";
 
+const googleClientID: string = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+if (!googleClientID) {
+  console.log("missing google client id");
+}
 interface linkStruct {
   name: string;
   link: string;
@@ -22,13 +27,12 @@ async function csrfToken() {
   try {
     let response = await fetch("http://localhost:5000/api/csrf-token", {
       method: "GET",
-      credentials : "include",
+      credentials: "include",
     });
+    
     if (!response.ok) {
       throw new Error("CSRF_TOKEN Failure");
     }
-    let data = await response.json();
-    console.log(data.succsess);
   } catch (e) {
     throw new Error(`Error ${e} while getting the csrf_token`);
   }
@@ -93,7 +97,7 @@ function Routing() {
 
 function Index() {
   return (
-    <GoogleOAuthProvider clientId={googleClientItems.web.client_id}>
+    <GoogleOAuthProvider clientId={googleClientID}>
       <Router>
         <Routing />
       </Router>

@@ -19,15 +19,9 @@ const OtpSchema = new mongoose.Schema({
   },
 });
 
-const csrf_tokenSchema = new mongoose.Schema({
-  token: {
-    type: String,
-    required: true,
-  },
-});
+
 
 module.exports = {
   User: mongoose.model("User", userSchema),
   OTP: mongoose.model("OTP", OtpSchema),
-  CSRF_TOKEN: mongoose.model("csrf_token", csrf_tokenSchema),
 };

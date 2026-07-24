@@ -38,7 +38,6 @@ const passWordValidationReg: validatingObject[] = [
 ];
 
 function Signup() {
-  console.log("asking for csrf_token");
   useEffect(() => {
     csrfToken();
 
@@ -126,7 +125,7 @@ function Signup() {
     clipy.preventDefault(); // stops the browser from putting it into an input of size two and losing the rest
     const pastedData = clipy.clipboardData.getData("text").trim(); //gets the data from the clipboard and trims it
     const pastedChars = pastedData.slice(0, pastedData.length).split(""); //separates it into a list of 5 chars with
-    console.log(pastedChars);
+
     let newOtp = [...otpVals];
     pastedChars.forEach((char, idx) => {
       if (idx < pastedChars.length) newOtp[idx] = char;
@@ -233,9 +232,9 @@ function Signup() {
       if (!response.ok) {
         setUserError({ fail: true, cause: data.cause });
         startUserErrorTimer();
-      } else {
-        handleSuccsessfullSignup();
+        return;
       }
+      handleSuccsessfullSignup();
     } catch (e) {
       throw new Error(`Error ${e} from google fetch`);
     }

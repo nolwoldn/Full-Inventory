@@ -84,7 +84,7 @@ app.get("/api/csrf-token", (req, res) => {
   if (req.session && req.session.csrf_token) {
     return res.json({ succsess: true });
   }
-  console.log("got request for csrf token");
+
   const newToken = generateCsrfToken();
   req.session.csrf_token = newToken;
 
@@ -95,9 +95,7 @@ app.get("/api/csrf-token", (req, res) => {
       sameSite: "lax",
     })
     .json({ succsess: true });
-  console.log(`${newToken} this is supposed to be the cookie`)
-  console.log("sent cookie");
-  console.log(`here is cookie `);
+ 
 });
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
