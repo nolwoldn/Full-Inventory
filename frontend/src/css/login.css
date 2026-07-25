@@ -1,0 +1,131 @@
+.login-full {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3px
+  ;
+}
+.login-main {
+  width: 50%;
+  height: 60vh;
+  border-radius: 12px;
+  box-shadow: 0px 0px 50px 0px rgba(0, 0, 0, 0.293);
+  padding: 15px;
+  background-color: white;
+  display: flex;
+  flex-flow: row nowrap;
+}
+.login-form {
+  width: 45%;
+  height: 100%;
+  padding: 10px;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 2px;
+}
+
+.login-inputs {
+  width: 100%;
+  padding: 5px;
+  border: none;
+  border-bottom: 1px solid black;
+  font-size: 15px;
+  margin-bottom: 20px;
+}
+
+.login-inputs:focus {
+  outline: none;
+  border: 1px solid black;
+}
+.login-labels {
+  font-size: 18px;
+  padding-bottom: 5px;
+}
+.password-wrapper {
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  border: none;
+  border-bottom: 1px solid black;
+  margin-bottom: 20px;
+  padding: 0px 5px 0px 0px;
+}
+.login-password-input {
+  border: none;
+  background-color: white;
+  margin: 0px;
+}
+.password-wrapper:focus-within {
+  border: 1px solid black;
+}
+.login-password-input:focus {
+  outline: none;
+  border: none;
+}
+.login-bottom {
+  margin-top: 15px;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
+.remeber-me-label {
+  font-size: 18px;
+  padding: 5px;
+}
+.login-submit {
+  margin-top: 20px;
+  font-size: 18px;
+  width: 100%;
+  height: 2.5rem;
+  padding: 2px;
+
+  border: none;
+  color: rgb(0, 0, 0);
+  background-color: white;
+  border-radius: 12px;
+  transition: 0.5s;
+  box-shadow: 0px 0px 12px 6px rgba(0, 0, 0, 0.099);
+}
+.login-submit:hover {
+  color: rgb(255, 255, 255);
+  background-color: black;
+  box-shadow: none;
+}
+.signup-link {
+  color: black;
+  text-underline-offset: 3px;
+  transition: 0.2s cubic-bezier(01, 0.9, 1, 01);
+}
+.signup-link:hover {
+  transform: scale(1.1);
+  font-weight: 200;
+}
+
+.remeber-checkbox:hover {
+  transform: scale(1.3);
+}
+.show-password-eye {
+  height: 100%;
+  cursor: pointer;
+}
+
+.google-login-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+.login-content {
+  width: 55%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: red;
+  border-radius: 12px;
+}

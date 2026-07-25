@@ -51,15 +51,15 @@ function Routing() {
     },
     {
       name: "Inventory",
-      link: "inventory/",
+      link: "/inventory",
     },
     {
       name: "Sales",
-      link: "sales/",
+      link: "/sales",
     },
     {
       name: "Buyers",
-      link: "buyers/",
+      link: "/buyers",
     },
   ];
 

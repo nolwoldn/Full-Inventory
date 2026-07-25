@@ -9,9 +9,10 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const connectToServer = require("./mainFiles/connectToDatabase.js"); //can import other files
 const signUpFunctions = require("./mainFiles/signUp.js");
+const loginFunctions = require("./mainFiles/login.js");
 const models = require("./models.js");
 
-console.log(connectToServer());
+connectToServer();
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -45,7 +46,7 @@ app.use((req, res, next) => {
 
   if (!cookieToken || !sessionToken) {
     return res.status(403).json({
-      cause: `csrf_token missing cookie= ${cookieToken} , session = ${sessionToken}`,
+      cause: `csrf_token missing`,
     });
   }
 
@@ -95,7 +96,12 @@ app.get("/api/csrf-token", (req, res) => {
       sameSite: "lax",
     })
     .json({ succsess: true });
- 
+});
+app.post("/api/login", (req , res) => {
+  loginFunctions.Login(req, res);
+});
+app.post("/api/login/google", (req, res) => {
+  loginFunctions.googleLogin(req, res);
 });
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
