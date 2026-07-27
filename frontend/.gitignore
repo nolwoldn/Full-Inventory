@@ -1,0 +1,6 @@
+.env 
+*.json
+tsconfig.app.json
+tsconfig.node.json
+node_modules/
+*.js

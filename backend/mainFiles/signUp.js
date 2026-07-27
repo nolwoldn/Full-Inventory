@@ -122,6 +122,7 @@ const verifyOTP = async (req, res) => {
   const user = await models.User.create({
     email: email,
     password: password,
+    sessionIds: [],
   });
 
   return res.status(201).json({ succsess: true });
@@ -164,6 +165,7 @@ async function googleSignup(req, res) {
     const user = await models.User.create({
       email: email,
       password: hashedPassword,
+      sessionIds: [],
     });
   } catch (e) {
     return res.status(400).json({ cause: `Error ${e} happened` });

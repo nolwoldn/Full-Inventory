@@ -7,11 +7,14 @@ import {
   Link,
   NavLink,
   useLocation,
+  Navigate,
+  useNavigate,
 } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
 import Signup from "./mainFiles/signUp";
 import Login from "./mainFiles/login";
+import StartingPage from "./startingPageRouting";
 
 const googleClientID: string = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -22,6 +25,15 @@ interface linkStruct {
   name: string;
   link: string;
 }
+interface LoggedInStruct {
+  fail: boolean;
+  pass: boolean;
+  cause: String;
+}
+interface userErrorObject {
+  fail: boolean;
+  cause: String;
+}
 
 async function csrfToken() {
   try {
@@ -29,7 +41,7 @@ async function csrfToken() {
       method: "GET",
       credentials: "include",
     });
-    
+
     if (!response.ok) {
       throw new Error("CSRF_TOKEN Failure");
     }
@@ -38,9 +50,32 @@ async function csrfToken() {
   }
 }
 
+async function askLogin(): Promise<LoggedInStruct> {
+  try {
+    const response = await fetch("http://localhost:5000/api/ask/login", {
+      method: "GET",
+      credentials: "include",
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.log("response given was failure");
+      return { fail: true, cause: data.cause, pass: false };
+    }
+    return { fail: false, pass: data.pass, cause: "User logged in" };
+  } catch (e) {
+    console.log("login error");
+    return { fail: true, cause: `Error ${e}`, pass: false };
+  }
+}
+
 function Routing() {
+  const navitgate = useNavigate();
   const crrLocation = useLocation();
   const [crrLinkIdx, changeCrrLinkIdx] = useState<number>(-1);
+  const [userError, setUserError] = useState<userErrorObject>({
+    fail: false,
+    cause: "",
+  });
 
   let showSideBar: boolean = false;
 
@@ -64,7 +99,29 @@ function Routing() {
   ];
 
   showSideBar = sideBarLink.some((link) => link.link === crrLocation.pathname);
+  let startUserErrorTimer = () => {
+    let timer = setTimeout(() => {
+      setUserError({ fail: false, cause: "" });
+    }, 5000);
+    return () => clearTimeout(timer);
+  };
 
+  if (showSideBar) {
+    const checkLogin = async () => {
+      const loggedIn: LoggedInStruct = await askLogin();
+      if (loggedIn.fail) {
+        setUserError({ fail: true, cause: loggedIn.cause });
+        startUserErrorTimer();
+        return;
+      }
+      if (!loggedIn.pass) {
+        navitgate("/home");
+
+        return;
+      }
+    };
+    checkLogin();
+  }
   return (
     <>
       {showSideBar && (
@@ -86,8 +143,12 @@ function Routing() {
           ))}
         </div>
       )}
+      {userError.fail && showSideBar && (
+        <div className="user-email-errors">{userError.cause}</div>
+      )}
 
       <Routes>
+        <Route path="/" element={<StartingPage />}></Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
       </Routes>
@@ -107,4 +168,4 @@ function Index() {
 
 createRoot(document.getElementById("root")!).render(<Index />);
 
-export default csrfToken;
+export default { csrfToken, askLogin };

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import csrfToken from "../index";
+import indexFunctions from "../index";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -8,15 +8,16 @@ import "../css/login.css";
 
 interface userErrorObject {
   fail: boolean;
-  cause: string;
+  cause: String;
+}
+interface LoggedInStruct {
+  fail: boolean;
+  pass: boolean;
+  cause: String;
 }
 
 function Login() {
-  csrfToken();
-
-  useEffect(() => {
-    document.title = "Login";
-  }, []);
+  indexFunctions.csrfToken();
 
   let userEmail = useRef<null | HTMLInputElement>(null);
   let userPassword = useRef<null | HTMLInputElement>(null);
@@ -34,6 +35,23 @@ function Login() {
     }, 5000);
     return () => clearTimeout(timer);
   };
+
+  const checkLogin = async () => {
+    const loggedIn: LoggedInStruct = await indexFunctions.askLogin();
+    if (loggedIn.fail) {
+      setUserError({ fail: true, cause: loggedIn.cause });
+      startUserErrorTimer();
+      return;
+    }
+    if (!loggedIn.pass) {
+      console.log("login check failed");
+
+      return;
+    }
+    console.log("Navigating to the dashboard");
+    navigate("/dashboard");
+  };
+  checkLogin();
 
   let loginRequest = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -83,7 +101,7 @@ function Login() {
           "Content-Type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ token: e.credential ,remeber }),
+        body: JSON.stringify({ token: e.credential, remeber }),
       });
       let data = await response.json();
       if (!response.ok) {
@@ -103,6 +121,9 @@ function Login() {
     startUserErrorTimer();
   };
 
+  useEffect(() => {
+    document.title = "Login";
+  }, []);
   return (
     <div className="login-full">
       <div className="login-main">

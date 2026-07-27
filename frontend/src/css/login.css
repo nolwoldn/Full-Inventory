@@ -4,8 +4,8 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 3px
-  ;
+ 
+  
 }
 .login-main {
   width: 50%;
@@ -16,6 +16,7 @@
   background-color: white;
   display: flex;
   flex-flow: row nowrap;
+  justify-content: space-between;
 }
 .login-form {
   width: 45%;
@@ -121,7 +122,7 @@
 }
 
 .login-content {
-  width: 55%;
+  width: 50%;
   height: 100%;
   display: flex;
   align-items: center;

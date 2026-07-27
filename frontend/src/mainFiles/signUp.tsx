@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import "../css/signUp.css";
-import csrfToken from "../index";
+import indexFunctions from "../index";
 interface passwordObject {
   password: string;
   passwordValid: boolean;
@@ -12,10 +12,14 @@ interface validatingObject {
   validator: RegExp;
   message: string;
 }
-
+interface LoggedInStruct {
+  fail: boolean;
+  pass: boolean;
+  cause: String;
+}
 interface userErrorObject {
   fail: boolean;
-  cause: string;
+  cause: String;
 }
 
 const passWordValidationReg: validatingObject[] = [
@@ -39,7 +43,7 @@ const passWordValidationReg: validatingObject[] = [
 
 function Signup() {
   useEffect(() => {
-    csrfToken();
+    indexFunctions.csrfToken();
 
     document.title = "Sign up";
   }, []);
@@ -171,6 +175,22 @@ function Signup() {
   };
 
   //backend functions
+  const checkLogin = async () => {
+    const loggedIn: LoggedInStruct = await indexFunctions.askLogin();
+    if (loggedIn.fail) {
+      setUserError({ fail: true, cause: loggedIn.cause });
+      startUserErrorTimer();
+      return;
+    }
+    if (!loggedIn.pass) {
+      console.log("login check failed");
+
+      return;
+    }
+    console.log("Navigating to the dashboard");
+    navigate("/dashboard");
+  };
+  checkLogin();
 
   let SignupRequest = async (e: React.MouseEvent) => {
     // TODO: finish post request

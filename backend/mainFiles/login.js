@@ -5,6 +5,15 @@ const crypto = require("crypto");
 const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+function clearSessionId(crrUser, SessionToRemove, time) {
+  let timer = setTimeout(async () => {
+    crrUser.sessionId = crrUser.sessionId.filter(
+      (item) => item !== SessionToRemove,
+    );
+    await crrUser.save();
+  }, time);
+}
+
 async function Login(req, res) {
   const { email, password, remeber } = req.body;
   if (!email || !password) {
@@ -29,24 +38,33 @@ async function Login(req, res) {
   }
 
   const sessionId = crypto.randomBytes(32).toString("base64url");
-
-  req.session.userSessionId = sessionId;
+  const crrUser = models.User.findOne({
+    email: email,
+    password: hashedPassword,
+  });
 
   const cookieOptions = {
     httpOnly: true,
     secure: false,
     sameSite: "lax",
   };
-
+  const userSessionList = crrUser.sessionIds;
+  crrUser.sessionId = [...userSessionList, sessionId];
+  crrUser.save();
   if (remeber) {
     cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 30;
+    clearSessionId(crrUser, sessionId, 1000 * 60 * 60 * 24 * 30);
+  }
+
+  if (!remeber) {
+    clearSessionId(crrUser, sessionId, 1000 * 60 * 60 * 24);
   }
 
   res.cookie("session_id", sessionId, cookieOptions).json({ succsess: true });
 }
 
 async function googleLogin(req, res) {
-  const { token,remeber } = req.body;
+  const { token, remeber } = req.body;
   if (!token) {
     return res.status(400).json({ cause: "No token" });
   }
@@ -65,24 +83,31 @@ async function googleLogin(req, res) {
     const sessionId = crypto.randomBytes(32).toString("base64url");
 
     req.session.userSessionId = sessionId;
+    const crrUser = await models.User.findOne({ email });
+    const crrUserSessions = crrUser.sessionIds;
 
     const cookieOptions = {
-      httpOnly: true,
+      httpOnly: false,
       secure: false,
       sameSite: "lax",
     };
-
+    crrUser.sessionIds = [...crrUserSessions, sessionId];
+    crrUser.save();
     if (remeber) {
       cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 30;
+      clearSessionId(crrUser, sessionId, 1000 * 60 * 60 * 24 * 30);
+    }
+    if (!remeber) {
+      clearSessionId(crrUser, sessionId, 1000 * 60 * 60 * 24);
     }
 
     return res
-      .cookie("session_id", sessionId, cookieOptions)
+      .cookie("session_id", sessionId, cookieOptions )
       .json({ succsess: true });
   } catch (e) {
     return res
       .status(400)
-      .json({ cause: `Error ${e}  happned during google Login` });
+      .json({ cause: `Error ${e} during google Login , session id =` });
   }
 }
 

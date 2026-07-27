@@ -10,6 +10,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  sessionIds: {
+    type: Array,
+    required: true,
+  },
 });
 
 const OtpSchema = new mongoose.Schema({
@@ -18,8 +22,6 @@ const OtpSchema = new mongoose.Schema({
     required: true,
   },
 });
-
-
 
 module.exports = {
   User: mongoose.model("User", userSchema),

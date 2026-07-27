@@ -97,11 +97,20 @@ app.get("/api/csrf-token", (req, res) => {
     })
     .json({ succsess: true });
 });
-app.post("/api/login", (req , res) => {
+app.post("/api/login", (req, res) => {
   loginFunctions.Login(req, res);
 });
 app.post("/api/login/google", (req, res) => {
   loginFunctions.googleLogin(req, res);
+});
+app.get("/api/ask/login", (req, res) => {
+  if (!req.cookies.session_id) {
+    console.log("no session id");
+
+    return res.status(200).json({ pass: false });
+  }
+  console.log("user logged in");
+  return res.status(200).json({ pass: true });
 });
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
