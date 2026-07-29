@@ -7,7 +7,6 @@ import {
   Link,
   NavLink,
   useLocation,
-  Navigate,
   useNavigate,
 } from "react-router-dom";
 import { GoogleOAuthProvider } from "@react-oauth/google";
@@ -15,6 +14,11 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import Signup from "./mainFiles/signUp";
 import Login from "./mainFiles/login";
 import StartingPage from "./startingPageRouting";
+import LandingPage from "./mainFiles/landingPage";
+import Main from "./mainFiles/InventoryManagmentMain";
+import Page404 from "./mainFiles/notFoundPage";
+
+import "./css/inventory-left.css";
 
 const googleClientID: string = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
@@ -71,7 +75,6 @@ async function askLogin(): Promise<LoggedInStruct> {
 function Routing() {
   const navitgate = useNavigate();
   const crrLocation = useLocation();
-  const [crrLinkIdx, changeCrrLinkIdx] = useState<number>(-1);
   const [userError, setUserError] = useState<userErrorObject>({
     fail: false,
     cause: "",
@@ -124,33 +127,15 @@ function Routing() {
   }
   return (
     <>
-      {showSideBar && (
-        <div className="side-bar">
-          {sideBarLink.map((item, idx: number) => (
-            <NavLink
-              key={idx}
-              to={item.link}
-              className={({ isActive }) => {
-                isActive || crrLinkIdx === idx
-                  ? "interacted-with sidebar-link"
-                  : "sidebar-link";
-              }}
-              onMouseEnter={() => changeCrrLinkIdx(idx)}
-              onMouseLeave={() => changeCrrLinkIdx(-1)}
-            >
-              {item.name}
-            </NavLink>
-          ))}
-        </div>
-      )}
-      {userError.fail && showSideBar && (
-        <div className="user-email-errors">{userError.cause}</div>
-      )}
-
       <Routes>
         <Route path="/" element={<StartingPage />}></Route>
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/home" element={<LandingPage />} />
+        {sideBarLink.map((item, idx) => (
+          <Route key={idx} path={item.link} element={Main(sideBarLink)} />
+        ))}
+        <Route path="*" element={<Page404 />} />
       </Routes>
     </>
   );
