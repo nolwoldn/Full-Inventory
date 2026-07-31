@@ -132,9 +132,10 @@ function Routing() {
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
         <Route path="/home" element={<LandingPage />} />
-        {sideBarLink.map((item, idx) => (
-          <Route key={idx} path={item.link} element={Main(sideBarLink)} />
-        ))}
+        <Route
+          path="/inventory/*"
+          element={<Main currentLink={crrLocation.pathname} />}
+        />
         <Route path="*" element={<Page404 />} />
       </Routes>
     </>
