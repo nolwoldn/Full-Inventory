@@ -38,7 +38,7 @@ function SideBar({ user }: SidebarProps) {
         { name: "Create bussiness", link: "/inventory/create-bussniess" },
       ];
       if (crrLocation.pathname !== "/inventory/create-bussniess") {
-        navigate("/inventory/create-bussniessS");
+        navigate("/inventory/create-bussniess");
       }
       break;
     case "admin":
