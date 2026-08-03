@@ -73,7 +73,7 @@ async function askLogin(): Promise<LoggedInStruct> {
 }
 
 function Routing() {
-  const navitgate = useNavigate();
+  const navigate = useNavigate();
   const crrLocation = useLocation();
   const [userError, setUserError] = useState<userErrorObject>({
     fail: false,
@@ -118,7 +118,7 @@ function Routing() {
         return;
       }
       if (!loggedIn.pass) {
-        navitgate("/home");
+        navigate("/home");
 
         return;
       }
@@ -127,6 +127,9 @@ function Routing() {
   }
   return (
     <>
+      {userError.fail && (
+        <div className="user-email-error">{userError.cause}</div>
+      )}
       <Routes>
         <Route path="/" element={<StartingPage />}></Route>
         <Route path="/signup" element={<Signup />} />

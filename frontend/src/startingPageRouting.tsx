@@ -19,7 +19,7 @@ function StartingPage() {
       return;
     }
     console.log("Navigating to the dashboard");
-    navigate("/inventory/dashboard");
+    navigate("/inventory/inventory");
   };
   checkLogin();
 

@@ -10,6 +10,7 @@ const PORT = process.env.PORT || 5000;
 const connectToServer = require("./mainFiles/connectToDatabase.js"); //can import other files
 const signUpFunctions = require("./mainFiles/signUp.js");
 const loginFunctions = require("./mainFiles/login.js");
+const inventoryFunctions = require("./mainFiles/InventoryManagment.js");
 const models = require("./models.js");
 
 connectToServer();
@@ -109,6 +110,9 @@ app.get("/api/ask/login", (req, res) => {
   }
 
   return res.status(200).json({ pass: true });
+});
+app.get("/api/get-user", (req, res) => {
+  inventoryFunctions.findCurrentUser(req, res);
 });
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 
 interface linkStruct {
   name: string;
@@ -7,7 +7,6 @@ interface linkStruct {
 }
 
 interface SidebarProps {
-  LinkList: linkStruct[];
   user: userObject;
 }
 interface userErrorObject {
@@ -18,14 +17,50 @@ interface userObject {
   name: String;
   userType: String;
   organisation: null | String;
-  authorization: null | String;
 }
 
 interface currentLinkObject {
   currentLink: String;
 }
 
-function SideBar({ LinkList, user }: SidebarProps) {
+function SideBar({ user }: SidebarProps) {
+  const navigate = useNavigate();
+  const crrLocation = useLocation();
+  let LinkList: linkStruct[] = [
+    {
+      name: "Inventory",
+      link: "/inventory/inventory",
+    },
+  ];
+  switch (user.userType) {
+    case "unemployed":
+      LinkList = [
+        { name: "Create bussiness", link: "/inventory/create-bussniess" },
+      ];
+      if (crrLocation.pathname !== "/inventory/create-bussniess") {
+        navigate("/inventory/create-bussniessS");
+      }
+      break;
+    case "admin":
+      LinkList = [
+        ...LinkList,
+        { name: "Dashboard", link: "/inventory/dashboard" },
+        {
+          name: "Sales",
+          link: "/inventory/sales",
+        },
+        {
+          name: "Buyers",
+          link: "/inventory/buyers",
+        },
+        {
+          name: "Add user",
+          link: "/inventroy/add-user",
+        },
+      ];
+      break;
+    case "worker":
+  }
   return (
     <div className="sidebar-full">
       <div className="sidebar-head">Inventory Managment</div>
@@ -74,17 +109,16 @@ function Main({ currentLink }: currentLinkObject) {
       name: "Buyers",
       link: "/inventory/buyers",
     },
+    { name: "Create bussiness", link: "/inventory/create-bussniess" },
   ];
   const currentFunction = sideBarLink.find((item) => item.link == currentLink);
   if (!currentFunction) {
     navigate("/pageNotFound");
- 
   }
   const [user, setUser] = useState<userObject>({
     name: "",
     userType: "",
-    organisation: "",
-    authorization: "",
+    organisation: null,
   });
   let startUserErrorTimer = () => {
     let timer = setTimeout(() => {
@@ -107,10 +141,11 @@ function Main({ currentLink }: currentLinkObject) {
       }
       setUser(data.user);
     };
+    getCrrUser();
   }, []);
   return (
     <div className="inventory-full">
-      <SideBar LinkList={sideBarLink} user={user} />
+      <SideBar user={user} />
       {userError.fail && (
         <div className="user-email-errors">{userError.cause}</div>
       )}

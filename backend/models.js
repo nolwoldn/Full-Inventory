@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema({
-  email: {
+  name: {
     type: String,
     required: true,
     unique: true,
@@ -13,6 +13,14 @@ const userSchema = new mongoose.Schema({
   sessionIds: {
     type: Array,
     required: true,
+  },
+  organisation: {
+    type: String,
+    required: true,
+  },
+  userType: {
+    type: String,
+    requrired: true,
   },
 });
 

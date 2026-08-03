@@ -120,8 +120,10 @@ const verifyOTP = async (req, res) => {
     .update(password)
     .digest("hex");
   const user = await models.User.create({
-    email: email,
+    name: email,
     password: password,
+    organisation: "",
+    userType: "",
     sessionIds: [],
   });
 
@@ -163,8 +165,10 @@ async function googleSignup(req, res) {
       .update(generatedPassword)
       .digest("hex");
     const user = await models.User.create({
-      email: email,
+      name: email,
       password: hashedPassword,
+      organisation: "",
+      userType: "",
       sessionIds: [],
     });
   } catch (e) {
