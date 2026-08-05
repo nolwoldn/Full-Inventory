@@ -19,8 +19,9 @@ async function findCurrentUser(req, res) {
     return res.status(200).json({ user: organisedUser });
   }
   organisedUser.organisation = userOrganisation;
-  const userAuthorization = user.authorization;
-  organisedUser.authorization = userAuthorization;
+  const userAuthorization = user.userType;
+  organisedUser.userType = userAuthorization;
+  console.log(organisedUser)
   return res.status(200).json({ user: organisedUser });
 }
 

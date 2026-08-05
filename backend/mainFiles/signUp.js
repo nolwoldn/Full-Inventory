@@ -127,7 +127,9 @@ const verifyOTP = async (req, res) => {
     sessionIds: [],
   });
 
-  return res.status(201).json({ succsess: true });
+  return res
+    .status(201)
+    .json({ succsess: true, Email: email, Password: password });
 };
 
 const testPost = async (req, res) => {
@@ -159,7 +161,7 @@ async function googleSignup(req, res) {
     if (exisistingUser) {
       return res.status(400).json({ cause: "Email already exists" });
     }
-    const generatedPassword = txtRandom(12);
+    const generatedPassword = crypto.randomBytes(15).toString("base64url");
     const hashedPassword = crypto
       .createHash("sha256")
       .update(generatedPassword)
@@ -171,11 +173,14 @@ async function googleSignup(req, res) {
       userType: "",
       sessionIds: [],
     });
+    return res.status(201).json({
+      succsess: true,
+      Email: email,
+      Password: generatedPassword,
+    });
   } catch (e) {
     return res.status(400).json({ cause: `Error ${e} happened` });
   }
-
-  return res.status(201).json({ succsess: true });
 }
 
 module.exports = { verifyEmail, verifyOTP, googleSignup };

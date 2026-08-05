@@ -78,7 +78,12 @@ function Signup() {
   const navigate = useNavigate();
 
   //functions
-  const handleSuccsessfullSignup = () => {
+  const handleSuccsessfullSignup = async (email: string, password: string) => {
+    const cred = await new (window as any).PasswordCredential({
+      id: email,
+      name: email,
+      password,
+    });
     navigate("/login");
   };
 
@@ -254,7 +259,8 @@ function Signup() {
         startUserErrorTimer();
         return;
       }
-      handleSuccsessfullSignup();
+      const {  Email, Password } = data;
+      handleSuccsessfullSignup(Email, Password);
     } catch (e) {
       throw new Error(`Error ${e} from google fetch`);
     }
@@ -293,7 +299,8 @@ function Signup() {
       let data = await response.json();
       setEmailOTPPassed(data.succsess);
       if (data.succsess) {
-        handleSuccsessfullSignup();
+        const { Email, Password } = data;
+        handleSuccsessfullSignup(Email, Password);
       }
     } catch (e) {
       console.log(`Error ${e} occured while trying to verify otp`);

@@ -85,19 +85,27 @@ function Routing() {
   const sideBarLink: linkStruct[] = [
     {
       name: "Dashboard",
-      link: "/dashboard",
+      link: "/inventory/dashboard",
     },
     {
       name: "Inventory",
-      link: "/inventory",
+      link: "/inventory/inventory",
     },
     {
       name: "Sales",
-      link: "/sales",
+      link: "/inventory/sales",
     },
     {
       name: "Buyers",
-      link: "/buyers",
+      link: "/inventory/buyers",
+    },
+    {
+      name: "Add user",
+      link: "/inventroy/add-user",
+    },
+    {
+      name: "Create bussiness",
+      link: "/inventory/create-bussniess",
     },
   ];
 
@@ -113,7 +121,7 @@ function Routing() {
     const checkLogin = async () => {
       const loggedIn: LoggedInStruct = await askLogin();
       if (loggedIn.fail) {
-        setUserError({ fail: true, cause: loggedIn.cause });
+        setUserError({ fail: true, cause: loggedIn.cause + "happened when cheking login" });
         startUserErrorTimer();
         return;
       }
@@ -128,7 +136,7 @@ function Routing() {
   return (
     <>
       {userError.fail && (
-        <div className="user-email-error">{userError.cause}</div>
+        <div className="user-email-errors">{userError.cause}</div>
       )}
       <Routes>
         <Route path="/" element={<StartingPage />}></Route>

@@ -24,13 +24,7 @@ function StartingPage() {
   checkLogin();
 
   return (
-    <h1
-      style={{
-        width: "100%",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+    <h1 className="width-100 display-flex justify-center">
       Hello please wait while we are asseing if your logged in
     </h1>
   );
