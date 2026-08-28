@@ -115,7 +115,6 @@ function SideBar({ user }: SidebarProps) {
       ];
       break;
     case "worker":
-      console.log("user is a worker");
       break;
     default:
       console.log("user type not identified");

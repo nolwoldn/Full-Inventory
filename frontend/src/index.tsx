@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   BrowserRouter as Router,
@@ -67,7 +67,7 @@ async function askLogin(): Promise<LoggedInStruct> {
     }
     return { fail: false, pass: data.pass, cause: "User logged in" };
   } catch (e) {
-    console.log("login error");
+    console.log(`Login ${e} happened`);
     return { fail: true, cause: `Error ${e}`, pass: false };
   }
 }
@@ -117,22 +117,24 @@ function Routing() {
     return () => clearTimeout(timer);
   };
 
-  if (showSideBar) {
-    const checkLogin = async () => {
-      const loggedIn: LoggedInStruct = await askLogin();
-      if (loggedIn.fail) {
-        setUserError({ fail: true, cause: loggedIn.cause + "happened when cheking login" });
-        startUserErrorTimer();
-        return;
-      }
-      if (!loggedIn.pass) {
-        navigate("/home");
+  useEffect(() => {
+    if (showSideBar) {
+      const checkLogin = async () => {
+        const loggedIn: LoggedInStruct = await askLogin();
+        if (loggedIn.fail) {
+          setUserError({ fail: true, cause: loggedIn.cause + "happened when cheking login" });
+          startUserErrorTimer();
+          return;
+        }
+        if (!loggedIn.pass) {
+          navigate("/home");
 
-        return;
-      }
-    };
-    checkLogin();
-  }
+          return;
+        }
+      };
+      checkLogin();
+    }
+  },[])
   return (
     <>
       {userError.fail && (

@@ -50,7 +50,7 @@ async function verifyEmail(request, response) {
     return response.status(400).json({ cause: "user email not filled out" });
   }
 
-  const exisistingUser = await models.User.findOne({ email });
+  const exisistingUser = await models.User.findOne({name: email });
   if (exisistingUser) {
     return response.status(400).json({ cause: "Email already exists" });
   }
@@ -70,12 +70,12 @@ async function verifyEmail(request, response) {
       text: "We need to verify this is your email account",
       html: `
                 <div style="
-                display : flex ; 
-                flex-flow :column nowrap; 
-                width : 100% ; 
-                margin-bottom : 50px; 
-                padding : 20px;" 
-                > 
+                display : flex ;
+                flex-flow :column nowrap;
+                width : 100% ;
+                margin-bottom : 50px;
+                padding : 20px;"
+                >
                   <h1>Email Verification</h1>
                   <p style="font-size : 25px ; justify-self : center;  ">${otp.value}</p>
 
@@ -121,8 +121,7 @@ const verifyOTP = async (req, res) => {
     .digest("hex");
   const user = await models.User.create({
     name: email,
-    password: password,
-    organisation: "",
+    password: hashedPassword,
     userType: "",
     sessionIds: [],
   });
@@ -157,7 +156,7 @@ async function googleSignup(req, res) {
     });
     const payload = ticket.getPayload();
     const { sub: googleId, email } = payload;
-    const exisistingUser = await models.User.findOne({ email });
+    const exisistingUser = await models.User.findOne({ name: email });
     if (exisistingUser) {
       return res.status(400).json({ cause: "Email already exists" });
     }
@@ -169,8 +168,7 @@ async function googleSignup(req, res) {
     const user = await models.User.create({
       name: email,
       password: hashedPassword,
-      organisation: "",
-      userType: "",
+      userType: "unemployed",
       sessionIds: [],
     });
     return res.status(201).json({

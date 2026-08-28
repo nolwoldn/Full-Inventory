@@ -36,7 +36,7 @@ function LandingPage() {
       return;
     }
     console.log("Navigating to the dashboard");
-    navigate("/dashboard");
+    navigate("/Inventory");
   };
   checkLogin();
 
@@ -44,7 +44,7 @@ function LandingPage() {
     <>
       <div className="landing-full">
         <div className="hero-page">
-            
+
         </div>
         {userError.fail && (
           <div className="user-email-errors">{userError.cause}</div>

@@ -7,7 +7,7 @@ const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 function clearSessionId(crrUser, SessionToRemove, time) {
   let timer = setTimeout(async () => {
-    crrUser.sessionId = crrUser.sessionId.filter(
+    crrUser.sessionIds = crrUser.sessionIds.filter(
       (item) => item !== SessionToRemove,
     );
     await crrUser.save();
@@ -24,24 +24,17 @@ async function Login(req, res) {
     .createHash("sha256")
     .update(password)
     .digest("hex");
-  try {
-    const userExists = await models.User.exists({
-      email: email,
-      password: hashedPassword,
-    });
-  } catch (e) {
-    console.log(`Error ${e} happned during login`);
-  }
+  const crrUser = await models.User.findOne({
+    name: email,
+    password: hashedPassword,
+  });
 
-  if (!userExists) {
+  if (!crrUser) {
     return res.status(400).json({ cause: "Email or password not correct" });
   }
 
   const sessionId = crypto.randomBytes(32).toString("base64url");
-  const crrUser = models.User.findOne({
-    email: email,
-    password: hashedPassword,
-  });
+
 
   const cookieOptions = {
     httpOnly: true,
@@ -49,7 +42,7 @@ async function Login(req, res) {
     sameSite: "lax",
   };
   const userSessionList = crrUser.sessionIds;
-  crrUser.sessionId = [...userSessionList, sessionId];
+  crrUser.sessionIds = [...userSessionList, sessionId];
   crrUser.save();
   if (remeber) {
     cookieOptions.maxAge = 1000 * 60 * 60 * 24 * 30;
@@ -76,14 +69,14 @@ async function googleLogin(req, res) {
     });
     const payload = ticket.getPayload();
     const { sub: googleId, email } = payload;
-    const exisistingUser = await models.User.findOne({ email });
+    const exisistingUser = await models.User.findOne({ name: email });
     if (!exisistingUser) {
       return res.status(400).json({ cause: "Account doesn't exist" });
     }
     const sessionId = crypto.randomBytes(32).toString("base64url");
 
     req.session.userSessionId = sessionId;
-    const crrUser = await models.User.findOne({ email });
+    const crrUser = await models.User.findOne({ name: email });
     const crrUserSessions = crrUser.sessionIds;
 
     const cookieOptions = {

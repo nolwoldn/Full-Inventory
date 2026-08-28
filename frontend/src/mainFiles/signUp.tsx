@@ -79,11 +79,15 @@ function Signup() {
 
   //functions
   const handleSuccsessfullSignup = async (email: string, password: string) => {
-    const cred = await new (window as any).PasswordCredential({
-      id: email,
-      name: email,
-      password,
-    });
+    try {
+      const cred = await new (window as any).PasswordCredential({
+        id: email,
+        name: email,
+        password,
+      });
+    } catch (e) {
+      console.log("why you on gecko dude")
+    }
     navigate("/login");
   };
 
@@ -188,8 +192,6 @@ function Signup() {
       return;
     }
     if (!loggedIn.pass) {
-      console.log("login check failed");
-
       return;
     }
     console.log("Navigating to the dashboard");
@@ -259,10 +261,13 @@ function Signup() {
         startUserErrorTimer();
         return;
       }
+      console.log("google signup response was ok")
       const {  Email, Password } = data;
       handleSuccsessfullSignup(Email, Password);
     } catch (e) {
-      throw new Error(`Error ${e} from google fetch`);
+      setUserError({ fail: true, cause: `${e}  happened during google sign up` });
+      startUserErrorTimer();
+      return
     }
   };
   let googleFail = () => {
