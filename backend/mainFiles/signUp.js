@@ -122,7 +122,7 @@ const verifyOTP = async (req, res) => {
   const user = await models.User.create({
     name: email,
     password: hashedPassword,
-    userType: "",
+    userType: "unemployed",
     sessionIds: [],
   });
 

@@ -11,7 +11,7 @@ async function findCurrentUser(req, res) {
   const userName = user.name;
   organisedUser.name = userName;
   organisedUser.userType = user.userType;
-  const userOrganisation = (await user.populate("organisation")).organisation;
+  const userOrganisation = (await user.populate("Organisation")).Organisation;
   if (!userOrganisation) {
     organisedUser.organisation = null;
     return res.status(200).json({ user: organisedUser });
@@ -32,8 +32,11 @@ async function getInventory(req,res) {
   if (user.userType === "unemployed") {
     return res.status(400).json({ cause: "you are unemployed" })
   }
-  const userOrganisation = (await user.populate("Organisation")).organisation;
+  const userOrganisation = (await user.populate("Organisation")).Organisation;
   const organisationInventory = (await userOrganisation.populate("Inventory"))
+  return res.status(200).json({success: true, inventory: organisationInventory})
 }
 
-module.exports = { findCurrentUser };
+
+
+module.exports = { findCurrentUser,getInventory };

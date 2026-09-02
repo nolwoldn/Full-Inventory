@@ -10,12 +10,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-
   sessionIds: {
     type: Array,
     required: true,
   },
-  organisation: {
+  Organisation: {
     type: mongoose.Schema.Types.ObjectId,
     required: false,
     ref: "Organisation",
@@ -47,10 +46,11 @@ const Organisation = new mongoose.Schema({
   workers: [
     {
       type: mongoose.Schema.Types.ObjectId,
+      ref: "Users",
       required: false,
     }
   ],
-  inventory: [
+  Inventory: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Inventory",
@@ -68,6 +68,10 @@ const Inventory = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "Organisation",
+  },
+  description: {
+    type: String,
+    required: false,
   },
   amount: {
     type: Number,
