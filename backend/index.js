@@ -11,7 +11,7 @@ const connectToServer = require("./mainFiles/connectToDatabase.js"); //can impor
 const signUpFunctions = require("./mainFiles/signUp.js");
 const loginFunctions = require("./mainFiles/login.js");
 const inventoryFunctions = require("./mainFiles/InventoryManagment.js");
-const models = require("./models.js");
+const orginisationFunctions = require("./mainFiles/organisationManagment.js");
 
 connectToServer();
 
@@ -116,6 +116,9 @@ app.get("/api/get/user", (req, res) => {
 });
 app.get("/api/get/inventory", (req, res) => {
   inventoryFunctions.getInventory(req, res);
+})
+app.post("/api/create-bussiness", (req, res) => {
+  orginisationFunctions.createOrganisation(req, res);
 })
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
