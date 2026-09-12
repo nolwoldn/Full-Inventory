@@ -42,11 +42,9 @@ async function getInventory(req, res) {
 
 async function AddInventoryItem(req, res) {
   const { name, amount, price, priceUnit, description } = req.body;
-  if (!name || !amount  || !description) {
+  if (!name || !amount || !description) {
     return rew.status(422).json({ cause: "not all parts are filled" });
   }
-  const newPrice = price ? price : undefined;
-  const priceUnitNew = priceUnit;
   const userSession = req.cookies.session_id;
   const user = await models.User.findOne({ sessionIds: userSession });
   if (!user) {
@@ -58,18 +56,23 @@ async function AddInventoryItem(req, res) {
       .json({ cause: "User is not authorized to make inventory items" });
   }
   const userOrganisation = (await user.populate("Organisation")).Organisation;
-
-  const InventoryItem = await models.Inventory.create({
+  let organisationInventoryItems = (await userOrganisation.populate("Inventory")).Inventory;
+  const ItemExists = organisationInventoryItems.some(item => item.name === name);
+  if (ItemExists) {
+    return res.status(400).json({cause: "You cannot have have two inventory items with the same name"})
+  }
+  let organisedItem = {
     name: name,
     Organisation: userOrganisation._id,
     personThatLastModified: user._id,
-    lastModifiedTime: new Date(),
-    amount,
-    newPrice,
-    priceUnitNew,
-    description,
-  });
-  console.log(InventoryItem);
+    amount: amount,
+    description: description,
+  };
+
+  price ? (organisedItem.price = price) : null;
+  priceUnit ? (organisedItem.priceUnit = priceUnit) : null;
+
+  const InventoryItem = await models.Inventory.create(organisedItem);
   userOrganisation.Inventory.push(InventoryItem._id);
   await userOrganisation.save();
   return res.status(201).json({ succsess: true });
