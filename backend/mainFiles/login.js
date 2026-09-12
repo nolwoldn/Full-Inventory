@@ -17,7 +17,7 @@ function clearSessionId(crrUser, SessionToRemove, time) {
 async function Login(req, res) {
   const { email, password, remeber } = req.body;
   if (!email || !password) {
-    return res.status(400).json({ cause: "Inputs not filled in correctly" });
+    return res.status(422).json({ cause: "Inputs not filled in correctly" });
   }
 
   const hashedPassword = crypto
@@ -59,7 +59,7 @@ async function Login(req, res) {
 async function googleLogin(req, res) {
   const { token, remeber } = req.body;
   if (!token) {
-    return res.status(400).json({ cause: "No token" });
+    return res.status(422).json({ cause: "No token" });
   }
 
   try {

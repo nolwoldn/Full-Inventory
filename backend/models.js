@@ -46,7 +46,7 @@ const Organisation = new mongoose.Schema({
   workers: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Users",
+      ref: "User",
       required: false,
     }
   ],
@@ -64,7 +64,7 @@ const Inventory = new mongoose.Schema({
     type: String,
     required: true,
   },
-  organisation: {
+  Organisation: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "Organisation",
@@ -86,6 +86,17 @@ const Inventory = new mongoose.Schema({
   priceUnit: {
     type: String,
     required: false,
+    default: "$"
+  },
+  lastModifiedTime: {
+    type: Date,
+    requried: false,
+    default: Date.now,
+  },
+  personThatLastModified: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
   }
 })
 

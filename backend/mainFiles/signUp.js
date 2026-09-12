@@ -47,7 +47,7 @@ async function verifyEmail(request, response) {
   let otp = { time: 60000, value: "" };
 
   if (!email) {
-    return response.status(400).json({ cause: "user email not filled out" });
+    return response.status(422).json({ cause: "user email not filled out" });
   }
 
   const exisistingUser = await models.User.findOne({name: email });
@@ -94,7 +94,6 @@ async function verifyEmail(request, response) {
     return response
       .status(400)
       .json({ cause: `Error ${e} happned while sendimg Email` });
-    throw new Error(`Error ${e} happned during the signup`);
   }
 }
 
@@ -102,7 +101,7 @@ const verifyOTP = async (req, res) => {
   const { email, password, otp } = req.body;
 
   if (!email || !otp || !password || !(otp.length === 6)) {
-    return res.status(200).json({ cause: "User hasn't filled all inputs" });
+    return res.status(422).json({ cause: "User hasn't filled all inputs" });
   }
 
   const otpExists = await models.OTP.exists({ otp: otp });
@@ -114,7 +113,7 @@ const verifyOTP = async (req, res) => {
   }
 
   const foundOTP = await models.OTP.findOne({ otp: otp });
-  const deleteingOTP = await models.OTP.findOneAndDelete({ _id: foundOTP._id });
+  await models.OTP.findOneAndDelete({ _id: foundOTP._id });
   const hashedPassword = crypto
     .createHash("sha256")
     .update(password)
@@ -146,7 +145,7 @@ async function googleSignup(req, res) {
   const { token } = req.body;
   if (!token) {
     return res
-      .status(400)
+      .status(422)
       .json({ cause: "User didn't enter in a proper ticket" });
   }
   try {

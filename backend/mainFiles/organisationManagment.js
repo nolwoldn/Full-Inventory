@@ -4,7 +4,7 @@ async function createOrganisation(req, res) {
   const { companyName } = req.body;
 
   if (!companyName) {
-    return res.status(400).json({cause: "Company name not included"})
+    return res.status(422).json({cause: "Company name not included"})
   }
 
   const userSession = req.cookies.session_id;
@@ -12,6 +12,9 @@ async function createOrganisation(req, res) {
 
   if (!user || !userSession) {
     return res.status(400).json({cause: "their is no user"})
+  }
+  if (user.Organisation) {
+    return res.status(400).json({ cause: "user not allowed to have multiple bussiness" });
   }
   const exsistingOrgs = await models.Organisation.findOne({ name: companyName });
   if (exsistingOrgs) {
@@ -22,6 +25,7 @@ async function createOrganisation(req, res) {
     admin: user._id,
   });
   user.Organisation = NewOrganisation._id;
+  user.userType = "admin";
   await user.save();
   return res.status(201).json({ succsess: true });
 }
