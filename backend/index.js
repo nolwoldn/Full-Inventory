@@ -116,11 +116,13 @@ app.get("/api/get/user", (req, res) => {
 });
 app.get("/api/get/inventory", (req, res) => {
   inventoryFunctions.getInventory(req, res);
-})
-app.post("/api/add/invenoty-item", (req, res) => { inventoryFunctions.AddInventoryItem(req, res) });
+});
+app.post("/api/invenoty/*", (req, res) => {
+  inventoryFunctions.AddInventoryItem(req, res);
+});
 app.post("/api/create-bussiness", (req, res) => {
   orginisationFunctions.createOrganisation(req, res);
-})
+});
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });

@@ -48,15 +48,15 @@ const Organisation = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: false,
-    }
+    },
   ],
   Inventory: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Inventory",
       required: false,
-    }
-  ]
+    },
+  ],
 });
 
 const Inventory = new mongoose.Schema({
@@ -68,6 +68,7 @@ const Inventory = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: "Organisation",
+    immutable: true
   },
   description: {
     type: String,
@@ -86,7 +87,7 @@ const Inventory = new mongoose.Schema({
   priceUnit: {
     type: String,
     required: false,
-    default: "$"
+    default: "$",
   },
   lastModifiedTime: {
     type: Date,
@@ -97,9 +98,8 @@ const Inventory = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
-  }
-})
-
+  },
+});
 
 module.exports = {
   User: mongoose.model("User", userSchema),
