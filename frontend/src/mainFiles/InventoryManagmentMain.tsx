@@ -33,7 +33,7 @@ function InventoryPage() {
         credentials: "include",
       });
     } catch (e) {
-      console.log("eror");
+      console.log("error");
     }
   };
   return <></>;
