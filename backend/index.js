@@ -123,7 +123,13 @@ app.post("/api/add/invenoty-item", (req, res) => {
 app.post("/api/create-bussiness", (req, res) => {
   orginisationFunctions.createOrganisation(req, res);
 });
-app.post("/api/update-inventory", inventoryFunctions.updateItem)
+app.post("/api/update-inventory", (req, res) => {
+  inventoryFunctions.updateItem(req, res);
+});
+app.post("/api/delete-inventory", (req, res) => {
+  inventoryFunctions.deleteItems(req, res);
+})
+
 app.listen(PORT, () => {
   console.log(`server is running on port ${PORT}`);
 });
